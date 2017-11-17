@@ -16,6 +16,7 @@ class DetailsController: UIViewController {
 
     
     var selectedCoin:CoinCellModel!
+    var coindetailsmodel: CoinDetailsModel?
     
     //IBOutlsets jane deklaruar me poshte
     @IBOutlet weak var imgFotoja: UIImageView!
@@ -47,30 +48,66 @@ class DetailsController: UIViewController {
     }
 
     func getDetails(params:[String:String]){
-        Alamofire.request(APIURL, method: .get).responseData { (data) in
+        Alamofire.request(APIURL, method: .get, parameters: params).responseData { (data) in
             
             if data.result.isSuccess{
                 let CoinJSON = try! JSON(data: data.result.value!)
                 
-                for (_,value) : (String,JSON) in CoinJSON["Data"]
-                {
-                    
-                    let coincellmodel = CoinCellModel (coinName: value["CoinName"].stringValue, coinSymbol: value["Name"].stringValue, coinAlgo: value["Algorithm"].stringValue, totalSuppy: value["TotalCoinSupply"].stringValue, imagePath: value["ImageUrl"].stringValue)
-                    
-                    
+                let coindetailsmodel = CoinDetailsModel (marketCap: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["MKTCAP"].stringValue, hourHigh: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["HOUR24HIGH"].stringValue, hourLow: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["HOUR24LOW"].stringValue, hourOpen: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["MKTCAP"].stringValue, dayHigh: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["HIGHDAY"].stringValue, dayLow: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["LOWDAY"].stringValue, dayOpen: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["OPENDAY"].stringValue, priceEUR: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["PRICE"].stringValue, priceUSD: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["PRICE"].stringValue, priceBTC: CoinJSON["DISPLAY"][self.selectedCoin.coinSymbol]["EUR"]["PRICE"].stringValue)
+                self.updateUI(CoinDetailsModelObject: coindetailsmodel)
+                
+            }
+                else
+                 {
+                    self.lblDitaOpen.text = ""
+                    self.lblDitaLow.text = ""
+                    self.lblDitaHigh.text = ""
+                    self.lbl24OreLow.text = ""
+                    self.lbl24OreHigh.text = ""
+                    self.lbl24OreOpen.text = ""
+                    self.lblCmimiBTC.text = ""
+                    self.lblCmimiEUR.text = ""
+                    self.lblCmimiUSD.text = ""
+                    self.lblMarketCap.text = ""
                 }
                 
             }
         }
-    }
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-    //IBAction mbylle - per butonin te gjitha qe mbyll ekranin
-   
+    
+    func updateUI (CoinDetailsModelObject:CoinDetailsModel)
+    {
+        coindetailsmodel = CoinDetailsModelObject
+        lblDitaOpen.text = CoinDetailsModelObject.dayOpen
+        lblDitaLow.text = CoinDetailsModelObject.dayLow
+        lblDitaHigh.text = CoinDetailsModelObject.dayHigh
+        lbl24OreLow.text = CoinDetailsModelObject.hourLow
+        lbl24OreHigh.text = CoinDetailsModelObject.hourHigh
+        lbl24OreOpen.text = CoinDetailsModelObject.hourOpen
+        lblCmimiBTC.text = CoinDetailsModelObject.priceBTC
+        lblCmimiEUR.text = CoinDetailsModelObject.priceEUR
+        lblCmimiUSD.text = CoinDetailsModelObject.priceUSD
+        lblMarketCap.text = CoinDetailsModelObject.marketCap
+        
+    }
+    @IBOutlet weak var ruaj: UIButton!
+    
+    @IBAction func ruaj(_ sender: Any) {
+        
+        let params : [String : String] = ["fsyms" : selectedCoin.coinSymbol , "tsyms" : "BTC,USD,EUR"]
+        
+        getDetails(params : params)
+    }
+    
+    
+    @IBAction func mbylle(_ sender: Any) {
+        self.dismiss(animated: true, completion: nil)
+    }
+    
     
 }
 

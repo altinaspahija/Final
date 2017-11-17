@@ -87,7 +87,7 @@ class ListaController: UIViewController, UITableViewDataSource, UITableViewDeleg
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let coin = allcoins[indexPath.row]
         selectedCoin = coin
-        performSegue(withIdentifier: "CoinCell", sender: self)
+        performSegue(withIdentifier: "shfaqDetajet", sender: self)
     }
 
    
