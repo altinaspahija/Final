@@ -10,7 +10,7 @@ import UIKit
 import Alamofire
 import SwiftyJSON
 import AlamofireImage
-
+import CoreData
 
 class DetailsController: UIViewController {
 
@@ -38,7 +38,7 @@ class DetailsController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        imgFotoja.af_setImage(withURL: URL(string: selectedCoin.imagePath)!)
+        imgFotoja.af_setImage(withURL: URL(string: selectedCoin.coinImage())!)
         lblCoinName.text = selectedCoin.coinName
         
         
@@ -94,13 +94,34 @@ class DetailsController: UIViewController {
         lblMarketCap.text = CoinDetailsModelObject.marketCap
         
     }
+   
     @IBOutlet weak var ruaj: UIButton!
     
     @IBAction func ruaj(_ sender: Any) {
         
-        let params : [String : String] = ["fsyms" : selectedCoin.coinSymbol , "tsyms" : "BTC,USD,EUR"]
+        let appdelegate = UIApplication.shared.delegate as! AppDelegate
         
-        getDetails(params : params)
+        let context = appdelegate.persistentContainer.viewContext
+        
+        let request = NSEntityDescription.insertNewObject(forEntityName: "Coins" , into: context)
+        
+        request.setValue(selectedCoin.coinName, forKey: "coinName")
+        request.setValue(selectedCoin.coinSymbol, forKey: "coinSymbol")
+        request.setValue(selectedCoin.coinAlgo, forKey: "coinAlgo")
+        request.setValue(selectedCoin.totalSuppy, forKey: "totalSuppy")
+        request.setValue(selectedCoin.coinImage(), forKey: "imagePath")
+        
+        do
+        {
+            try context.save()
+        
+        }
+        catch
+        {
+        print ("Gabim gjate ruajtjes")
+        }
+        
+        
     }
     
     

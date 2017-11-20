@@ -79,7 +79,7 @@ class ListaController: UIViewController, UITableViewDataSource, UITableViewDeleg
         cell.lblTotali.text = allcoins[indexPath.row].totalSuppy
         cell.lblSymboli.text = allcoins[indexPath.row].coinSymbol
         cell.lblAlgoritmi.text = allcoins[indexPath.row].coinAlgo
-        cell.imgFotoja.af_setImage(withURL: URL(string: allcoins[indexPath.row].imagePath)!)
+        cell.imgFotoja.af_setImage(withURL: URL(string: allcoins[indexPath.row].coinImage())!)
         return cell
 
     }

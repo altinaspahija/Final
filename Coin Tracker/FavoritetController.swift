@@ -8,80 +8,61 @@
 
 import UIKit
 import CoreData
+import AlamofireImage
 
 class FavoritetController: UIViewController, UITableViewDelegate, UITableViewDataSource{
 
     let rezultati:[String] = []
+    var coinstable: [CoinCellModel] = []
+    var coins: CoinCellModel! = nil
+    
+   
+    @IBOutlet weak var tableView: UITableView!
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        <#code#>
+        return coinstable.count
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        <#code#>
+        let cell = tableView.dequeueReusableCell(withIdentifier: "coinCell") as! CoinCell
+        cell.lblEmri.text = coinstable[indexPath.row].coinName
+        cell.lblSymboli.text = coinstable[indexPath.row].coinSymbol
+        cell.imgFotoja.af_setImage(withURL: URL(string: coinstable[indexPath.row].coinImage())!)
+        cell.lblTotali.text = coinstable[indexPath.row].totalSuppy
+        cell.lblAlgoritmi.text = coinstable[indexPath.row].coinAlgo
+        print(coinstable[indexPath.row].coinImage())
+        return cell
     }
     
-
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //Marrim appdelegate fajllin duke perdorur UIApplication.shared.delegate
-        //dhe e konvertojme si Appdelegate
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(UINib.init(nibName: "CoinCell", bundle: nil), forCellReuseIdentifier: "coinCell")
+        
         let appdelegate = UIApplication.shared.delegate as! AppDelegate
         
-        //Marrim prej Appdelegate nga variabla persistenContainer propertyn
-        //viewContext qe na mundeson lidhjen me databaze
+        
         let context = appdelegate.persistentContainer.viewContext
         
-        /* Metodat per te ruajtur te dhena ne CoreData */
-        
-        //Krijojme nje EntityDescription me metoden insertNewObject, per te pergaditur
-        //elementin e ri qe do te futet ne databaze
-        let perdoruesiIRi = NSEntityDescription.insertNewObject(forEntityName: "Coins", into: context)
-        
-        //Perdoruesit te ri i japim vlerat qe duam ti fusim ne databaze
-        perdoruesiIRi.setValue("Altina", forKey: "username")
-        perdoruesiIRi.setValue("0000", forKey: "password")
-        perdoruesiIRi.setValue(21, forKey: "mosha")
-        
-        
-        //Duke perdorur do - catch, tentojme ne context ti ruajm ndryshimet e bera
-        //Nese ka ndonje gabim, printohet mesazhi Gabim gjate ruajtjes
-        do {
-            try context.save()
-        } catch {
-            print("Gabim gjate ruajtjes")
-        }
-        
-        
-        /* Metodat per te lexuar te dhena ne CoreData */
-        
-        //Krijojme nje variabel request qe eshte objekt i tipit
-        //NSFetchRequest me elemente NSFetchRequestResult
-        //si parameter inicializues ja japim emrin e Entitetit (Tabeles)
+      
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: "Coins")
         
-        //variables request i tregojme qe te ktheje objektet tona me te dhena
-        //te sakta (jo Faults)
+
         request.returnsObjectsAsFaults = false
         
-        //Duke perdorur do - catch tentojme te lexojme te dhenat nga tabela
-        //Nese ka gabim printohet mesazhi "Gabim gjate Leximit"
+        
         do {
-            //krijojme nje variabel rezultati duke ja derguar context-it requestin
-            //e krijuar me siper
+            
             let rezultati = try context.fetch(request)
             
-            //Per secilin element qe kthen rezultati, kontrollojme nese
-            //mund te krijohet variabla username atehere e printojme ate
+            
             for elementi in rezultati as! [NSManagedObject]{
-                if let username = elementi.value(forKey: "username") as? String{
-                    print(username)
+                self.coinstable.append(CoinCellModel(coinName: (elementi.value(forKey: "coinName")as? String)!, coinSymbol: (elementi.value(forKey: "coinSymbol")as? String)!, coinAlgo: (elementi.value(forKey: "coinAlgo")as? String)!,totalSuppy: (elementi.value(forKey: "totalSuppy")as? String)!, imagePath: (elementi.value(forKey: "imagePath")as? String)!))
                 }
             }
-            
-            
-        } catch {
+    catch {
             print("Gabim gjate Leximit")
         }
         
@@ -91,6 +72,9 @@ class FavoritetController: UIViewController, UITableViewDelegate, UITableViewDat
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    @IBAction func kthehu(_ sender: Any) {
+        self.dismiss(animated: true, completion: nil)
     }
     
 
